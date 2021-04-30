@@ -3,7 +3,7 @@ import warnings
 
 from PIL import Image, ImageDraw, ImageFile, ImageFilter, ImageFont
 
-
+FORMATS = ["BMP", "DIB", "GIF", "ICNS", "ICO", "IM", "JPEG", "JPEG 2000", "MSP", "PCX", "PNG", "PPM", "SGI", "TGA", "TIFF", "WEBP", "XBM"]
 def enable_decompressionbomb_error():
     ImageFile.LOAD_TRUNCATED_IMAGES = True
     warnings.filterwarnings("ignore")
@@ -14,9 +14,21 @@ def fuzz_image(data):
     # This will fail on some images in the corpus, as we have many
     # invalid images in the test suite.
     with Image.open(io.BytesIO(data)) as im:
+        im.load()
         im.rotate(45)
         im.filter(ImageFilter.DETAIL)
         im.save(io.BytesIO(), "BMP")
+
+def fuzz_image2(data):
+    global FORMATS
+    p = ImageFile.Parser()
+    p.feed(data)
+    im = p.close()
+    im.load()
+    im.rotate(45)
+    im.filter(ImageFilter.DETAIL)
+    im.save(io.BytesIO(), FORMATS[random.randint(0, len(FORMATS) - 1))
+    im.close()
 
 
 def fuzz_font(data):
